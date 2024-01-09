@@ -1,23 +1,45 @@
-# Economize Backend Intern Assignment
+# Node.js and SQLite Todo Application
 
-## Todo Application
+This project is a simple Todo application implemented using Node.js and SQLite as the database.
 
-This project implements a Todo application with a Node.js backend and SQLite as the database.
+## Prerequisites
 
-### Prerequisites
-
-- Node.js
+- Node.js (at least version 12)
 - SQLite
 
-### Backend
+## Project Structure
 
-#### Database Setup
+The project is organized into the following directories:
 
-1. Install SQLite: Follow instructions on [SQLite Download Page](https://www.sqlite.org/download.html) or use your package manager.
+## Setup
 
-#### Application Setup
+1. **Clone the repository:**
 
-1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/economize-backend.git
+   git clone https://github.com/kumar964050/Economize-Backend-Intern-Assignment.git
    ```
+
+2. ***
+
+```
+cd Economize-Backend-Intern-Assignment
+npm install
+npm start or npm run dev
+```
+
+3. **API Routes**
+
+```
+GET /todos
+
+GET /todos/:Id
+
+POST /todos
+{
+"todo": "Your Todo Task"
+}
+
+PUT /todos/:Id
+
+DELETE /todos/:Id
+```
