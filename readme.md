@@ -7,6 +7,8 @@ This project is a simple Todo application implemented using Node.js and SQLite a
 - Node.js (at least version 12)
 - SQLite
 
+- Pending (active task count after deleting task)
+
 ## Project Structure
 
 The project is organized into the following directories:
