@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display+SC:ital,wght@0,400;0,700;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,700&display=swap");
+
+      * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        font-family: "Roboto";
+      }
+
+      body {
+        margin: 0;
+        background-color: #3a3f49;
+        color: #fff;
+      }
+
+      .header_section {
+        height: 20vh;
+        padding: 10px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .date_no_of_tasks_container {
+        flex: 1;
+      }
+
+      .today_date {
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .no_of_tasks {
+        color: #61dbfb;
+      }
+
+      .header_btn {
+        margin: 0 20px;
+        background: transparent;
+        border: none;
+        color: #afa39e;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .header_active_btn {
+        color: #fff;
+        font-weight: 400;
+      }
+
+      .input_section {
+        padding: 0 30px;
+        height: 40px;
+        display: flex;
+      }
+
+      .input_section input {
+        height: 100%;
+        max-width: 600px;
+        flex: 1;
+        padding: 10px 20px;
+        outline: none;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+
+      .input_section button {
+        height: 100%;
+        padding: 0 20px;
+        background-color: #61dbfb;
+        color: #fff;
+        border: none;
+        border-radius: 1px;
+      }
+
+      .input_section button:hover {
+        color: #61dbfb;
+        background-color: #fff;
+        cursor: pointer;
+        transition: 0.2s all;
+      }
+
+      .todos_section {
+        padding: 30px;
+        list-style-type: none;
+      }
+
+      .todo_list {
+        display: flex;
+        align-items: center;
+        height: 60px;
+        padding: 10px 20px;
+        border: 1px solid #575757;
+        border-left: none;
+        border-right: none;
+      }
+
+      .icons {
+        font-size: 20px;
+        font-weight: 600;
+        width: 50px;
+        cursor: pointer;
+      }
+
+      .icons:hover {
+        color: #61dbfb;
+        cursor: pointer;
+        transition: 0.2s all;
+      }
+
+      .d_icons {
+        width: 20px;
+        margin-left: 30px;
+      }
+
+      .d_icons:hover {
+        color: red;
+      }
+
+      .todo_text {
+        flex: 2;
+        white-space: pre;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- header section -->
+    <header class="header_section">
+      <div class="date_no_of_tasks_container">
+        <p id="today_date" class="today_date">Sunday , June 1</p>
+        <span class="no_of_tasks"
+          ><span id="no_of_tasks">0</span>active tasks</span
+        >
+      </div>
+      <button id="incmp" class="header_btn header_active_btn">
+        Incomplete Tasks
+      </button>
+      <button id="cmp" class="header_btn">Completed Tasks</button>
+    </header>
+    <!-- search section -->
+    <form id="myform" class="input_section">
+      <input id="input_element" type="text" placeholder="Enter a Task . . ." />
+      <button id="todo_add_btn">Add Task</button>
+    </form>
+    <!-- todos list section -->
+    <ul id="todos_section" class="todos_section"></ul>
+    <script>
+      // display date
+      const today_date = document.getElementById("today_date");
+      today_date.textContent = new Date().toDateString();
+      // no of active tasks
+      const no_of_tasks = document.getElementById("no_of_tasks");
+      no_of_tasks.textContent = `0`;
+
+      // tab btns
+      const incmpBtn = document.getElementById("incmp");
+      const cmpBtn = document.getElementById("cmp");
+      //
+      const myform = document.getElementById("myform");
+      const input_element = document.getElementById("input_element");
+      const todo_add_btn = document.getElementById("todo_add_btn");
+      const todos_section = document.getElementById("todos_section");
+
+      let isIncompleteTab = true;
+
+      // updating task  and removing
+      async function maskAsComplete(id) {
+        const res = await fetch(`/todos/${id}`, {
+          method: "PUT",
+        });
+        if (res.ok) {
+          no_of_tasks.textContent =
+            parseInt(no_of_tasks.textContent) > 0
+              ? parseInt(no_of_tasks.textContent) - 1
+              : 0;
+          todos_section.removeChild(document.getElementById(`li-${id}`));
+          // window.location.reload();
+        }
+      }
+      // delete from db and also removing
+      async function deleteTodo(id) {
+        const res = await fetch(`/todos/${id}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          todos_section.removeChild(document.getElementById(`li-${id}`));
+        }
+      }
+
+      // adding task script
+      function addTodo(data) {
+        // li Element
+        const liElement = document.createElement("li");
+        liElement.setAttribute("id", `li-${data.id}`);
+        liElement.classList.add("todo_list");
+        todos_section.appendChild(liElement);
+        // check icon
+        const checkIconElement = document.createElement("i");
+        checkIconElement.classList.add("bi", "bi-check-circle", "icons");
+        checkIconElement.onclick = () => {
+          maskAsComplete(data.id);
+        };
+        liElement.appendChild(checkIconElement);
+        // p el
+        const todoElement = document.createElement("p");
+        todoElement.classList.add("todo_text");
+        todoElement.textContent = data.todo;
+        liElement.appendChild(todoElement);
+
+        //
+        const deleteIconElement = document.createElement("i");
+        deleteIconElement.classList.add("bi", "bi-trash", "icons", "d_icons");
+
+        deleteIconElement.onclick = () => {
+          deleteTodo(data.id);
+        };
+        liElement.appendChild(deleteIconElement);
+      }
+
+      function renderTaskList(taskList) {
+        todos_section.innerHTML = "";
+        let tasks = taskList.filter(
+          (task) => Boolean(task.is_complete) !== isIncompleteTab
+        );
+        for (var i = 0; i < tasks.length; i++) {
+          if (tasks[i].is_complete !== isIncompleteTab) {
+            addTodo(tasks[i]);
+          }
+        }
+      }
+
+      // get all tasks from db
+      async function getAndAddTodo() {
+        const res = await fetch(`/todos`);
+        const data = await res.json();
+        if (res.ok) {
+          const noOfInCmp = data.filter(
+            (task) => Boolean(task.is_complete) === false
+          );
+          no_of_tasks.textContent = `${noOfInCmp.length} `;
+          renderTaskList(data);
+        }
+      }
+
+      incmpBtn.onclick = () => {
+        cmpBtn.classList.remove("header_active_btn");
+        incmpBtn.classList.add("header_active_btn");
+        isIncompleteTab = true;
+        getAndAddTodo();
+      };
+      cmpBtn.onclick = () => {
+        incmpBtn.classList.remove("header_active_btn");
+        cmpBtn.classList.add("header_active_btn");
+        isIncompleteTab = false;
+
+        getAndAddTodo();
+      };
+
+      // add task btn
+      myform.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const input_value = input_element.value;
+        if (input_value === "") return alert("Please enter a Task.");
+        const res = await fetch("/todos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            todo: input_value,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.reload();
+          // getAndAddTodo();
+        }
+      });
+
+      getAndAddTodo();
+    </script>
+  </body>
+</html>

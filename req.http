@@ -1,0 +1,16 @@
+GET   http://localhost:3000/todos?is_complete=true
+###
+POST   http://localhost:3000/todos
+Content-Type: application/json
+
+{
+    "todo" : "Narendra"
+}
+
+###
+PUT   http://localhost:3000/todos/1
+###
+DELETE   http://localhost:3000/todos/2
+
+
+###
